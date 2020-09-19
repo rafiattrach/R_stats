@@ -1,0 +1,117 @@
+---
+title: "Problem Set 7"
+output:
+html_document: default
+---
+
+```{r setup, echo=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+# <span style="color:blue"> *Exercise 7.2* </span>
+
+## <span style="color:orange"> _part a)_ </span> 
+
+</br>
+
+#### <span style="color:green"> Creating the data frame </span>
+
+```{r}
+df <- data.frame("nearsightedness" = rep (c("yes","no"), times = c(21,173)))
+```
+
+
+</br>
+
+## <span style="color:orange"> _part b)_ </span> 
+
+</br>
+
+#### <span style="color:green"> Show Table </span>
+
+```{r}
+table(df)
+```
+
+</br>
+
+## <span style="color:orange"> _part c)_ </span> 
+
+</br>
+
+#### <span style="color:green"> Hypotheses </span>
+
+H0: p = 0.08 (near-sightedness does affect about 8% of all children, the data does not provide enough evidence that the 8% value is inaccurate)
+HA: p != 0.08 (near-sightedness does not affect about 8% of all children, the data does provide enough evidence that the 8% value is inaccurate)
+
+</br>
+
+## <span style="color:orange"> _part d)_ </span> 
+
+</br>
+
+#### <span style="color:green"> Load necessary packages </span>
+
+```{r, message=FALSE}
+library("infer")
+library("tidyverse")
+```
+
+
+#### <span style="color:green"> Set seed for reproducable results & Create a null distribution </span>
+
+```{r, message=FALSE}
+set.seed(12345)
+
+null_distribution <- df %>%
+  
+                        specify(response = nearsightedness, success = "yes") %>%
+                          
+                          # point estimate/ population parameter
+                          hypothesize(null = "point", p = 0.08 )  %>% 
+                          
+                            generate(reps = 1000) %>% 
+    
+                              calculate(stat = "prop")
+    
+           
+```
+
+#### <span style="color:green"> View null distribution as tibble </span>
+
+```{r}
+tibble(null_distribution)
+```
+
+</br>
+
+## <span style="color:orange"> _part e)_ </span> 
+
+</br>
+
+
+#### <span style="color:green"> Visualize the simulated null distribution </span>
+
+```{r}
+null_distribution %>%
+                  visualise() + 
+                    shade_p_value(obs_stat = 21/194, direction = "both")
+```
+
+#### <span style="color:green"> Corresponding p-value of the test </span>
+
+```{r}
+null_distribution %>% get_pvalue(obs_stat = 21/194, direction = "both")
+```
+
+</br>
+
+## <span style="color:orange"> _part f)_ </span> 
+
+</br>
+
+#### <span style="color:green"> Conclusion </span>
+
+Since the corresponding p-value of the test (0.198) is greater than the significance level (0.05) chosen before calculating the p-value, we do not have sufficient evidence to reject the H0 hypothesis which stated that near-sightedness does affect about 8% of all children.
+
