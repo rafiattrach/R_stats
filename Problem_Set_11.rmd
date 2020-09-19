@@ -1,0 +1,132 @@
+---
+title: "Problem Set 11"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+#  <span style="color:blue">  *Exercise 11.2* </span>
+
+## <span style="color:orange"> _part a)_ </span> 
+
+</br>
+
+#### <span style="color:green"> Is it reasonable to use ANOVA? </span>
+#### <span style="color:magenta"> Read in data and get an overview </span>
+```{r,message=FALSE}
+library(tidyverse)
+```
+```{r,include=FALSE}
+setwd("C:/Users/EliteBook HP840/Documents/R/Problem_Sets")
+```
+
+
+```{r, message=FALSE}
+yt <- read_csv("rusty_bolt.csv")
+```
+```{r}
+summary(yt)
+```
+
+#### <span style="color:magenta"> Exploratory Analysis </span>
+
+```{r}
+ggplot(yt, aes(treatment, torque)) + geom_boxplot()
+```
+
+
+#### <span style="color:magenta"> Get metrics for the groups </span>
+
+
+```{r}
+yt %>%
+  group_by(treatment) %>%
+  summarise(n = n(),
+            mean = mean(torque),
+            sd = sd(torque))
+```
+#### To answer the question of whether it is reasonable to apply ANOVA in this case, we need to understand what ANOVA is used for and if it could be used in this case. ANOVA is used to assess whether the mean of the outcome variable is different for different levels of a categorical variable. So in this case we want to see if the mean of the torque is different for different levels of treatment. Now we just need to check the conditions:
+
+#### <span style="color:magenta"> 1) The observations should be independent within and between groups: </span> There is no mention that the sample was a random sample hence this condition can't be checked and we are going to have to make assumptions if we wanna use ANOVA.
+
+
+#### <span style="color:magenta"> 2) The observations within each group should be nearly normal: </span> This is especially important when the sample sizes are small like in this case, where we only have 4 samples for each treatment. As we can see from the graph below made by the autoplot() function, the points are relatively close to the line, but not all, hence deciding if its nearly normal is pretty subjective. I would say that it doesn't satisfy the condition 100% especially due to the low sample size. One would expect the points to be closer for such a small sample to be sure and more intricate about the distribution.
+
+
+
+```{r}
+library(ggfortify)
+autoplot(aov(torque ~ treatment, data = yt), which = 2, ncol = 1)
+```
+
+#### <span style="color:magenta"> 3) The variability across the groups should be about equal: </span> This is especially important when the sample sizes differ between groups. However, here all have the same size (it is rather small though). As seen by the boxplot above, the variability for "PB Blaster" seems smaller than the others, and the whiskers are also quite different for some of the treatment levels, however with such a small sample size of 4, it is difficult to judge and say that they really are different. Therefore we would continue with the analysis but we have to be critical and meticulous. One could explain the variability by saying that a certain group was under/overestimated with this small sample size.
+
+</br>
+
+## <span style="color:orange"> _part b)_ </span> 
+
+</br>
+
+#### <span style="color:green"> Hypotheses and conducting test in R with conclusion </span>
+#### <span style="color:magenta"> Hypotheses: </span> 
+
+<li> <span style="color:orange">$Ho$ </span>: $\mu_1 = \mu_2 = \mu_3= \mu_4= \mu_5= \mu_6 = \mu_7$ : The mean outcome of torque is same across all treatment categories (each number represents a different treatment group)  </li>
+<li> <span style="color:orange">$HA$ </span>: At least one mean is different than the others.</li>
+</ul>
+
+</br>
+
+#### <span style="color:magenta"> ANOVA test regardless of conditions </span> 
+
+```{r}
+yt_anova <- aov(torque ~ treatment, data = yt)
+summary(yt_anova)
+```
+<li> <span style="color:orange"> Conclusion</span>: The p value is fairly small, however no significance level was given (with a 5% significance level for example, we would reject the null hypotheses indicating that at least 1 mean is different than the others) </li>
+
+
+</br>
+
+## <span style="color:orange"> _part c)_ </span> 
+
+</br>
+
+#### <span style="color:green"> Box plots and conclusion </span>
+#### Already disscused in part (a) in the 3rd condition
+
+
+</br>
+
+## <span style="color:orange"> _part d)_ </span> 
+
+</br>
+
+#### <span style="color:green"> Tukey’s honestly significant difference test </span>
+
+#### <span style="color:magenta"> post-hoc analysis </span> 
+
+```{r}
+tukey <- TukeyHSD(yt_anova)
+tukey
+```
+
+#### <span style="color:magenta"> Conclusion </span> 
+
+##### To see which treatments are significantly different from each other, we have to look at the adjusted p-value and choose the ones below our significance level which is 5%. The following list represents those ones:
+
+
+```{r}
+treatments <- tukey$treatment
+lessThanSigLev <- treatments[, "p adj"] < 0.05
+which(lessThanSigLev)
+```
+
+##### This suggests that Liquid Wrench-AeroKroil and  none-Liquid Wrench have means that are different than each other, because the adjusted p-value for each of the pairs is below the signifance level indicating that the means are different (in favor of alternative). Furthermore one can see that those pairs don't cover 0 in their interval which means there's a relatively high chance that they are different from each other aiding to the same conclusion already made.
+
+</br>
+
+</br>
+
+</br>

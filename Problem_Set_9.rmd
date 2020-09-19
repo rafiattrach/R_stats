@@ -1,0 +1,172 @@
+---
+title: "Problem Set 9"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+#  <span style="color:blue">  *Exercise 9.1* </span>
+
+## <span style="color:orange"> _part a)_ </span> 
+
+</br>
+
+#### <span style="color:green"> Evaluating whether the ANES sample is representative of the population distribution of US residents: </span>
+
+#### <span style="color:magenta"> (1)  State the hypotheses  </span>
+
+<ul> 
+<li> <span style="color:orange">$Ho$</span>: There <strong>is no</strong> inconsistency between the observed counts (from the 2012 ANES dataset sample) and the expected counts (from the 2010 Census) </li>
+<li> <span style="color:orange"> $HA$</span>: There <strong>is</strong> inconsistency between the observed counts (from the 2012 ANES dataset sample) and the expected counts (from the 2010 Census) </li>
+</ul>
+
+#### <span style="color:magenta"> (2)  Check conditions  </span>
+
+<ul> 
+<li> <span style="color:orange"> Independence:</span> Since we are working with a random sample of 500 respondents from the ANES dataset, each case that contributes a count to the table is independent of all the other cases in the table   </li>
+<li> <span style="color:orange"> Sample size:</span> The sample size condition wouldn't have been met if there was a percentage of <10%, but since all of them are above 10% then each particular scenario (cell) has a value of at least 5, therefore meeting this condition   </li>
+<li> <span style="color:orange"> df > 1:</span> This mean that 3 cells are needed at the very least to achieve a degree of freedom that's greater than 1. Since we have 4 cells, this satisfies our condition</li>
+</ul>
+
+#### <span style="color:magenta"> (3)  Calculate the appropriate test statistic and the p-value  </span>
+
+```{r}
+obs <- c(121,83,193,103)
+perc <- c(0.22, 0.18, 0.37, 0.23)
+chisq.test(x = obs, p = perc)
+```
+
+#### <span style="color:magenta"> (4)  Conclusion  </span>
+
+<ul> 
+
+<li> We calculated a p-value of 0.3557 (which is greater than the standard significance level of 0.05), so the conclusion of the hypothesis test is to *not reject* the $Ho$ which means that the data provides convincing evidence that the ANES sample is representative of
+the population distribution of US residents.  </li>
+</ul>
+
+
+## <span style="color:orange"> _part b)_ </span> 
+
+</br>
+
+#### <span style="color:green"> Region and direction: </span>
+
+#### <span style="color:magenta"> (i) Response and explanatory variables </span>
+
+
+<ul> 
+
+<li> $Response:$ The response variable is the focus of a question in a study or experiment so in our case, the relationship between region and feeling about the country’s direction. Analyzing whether the relationship between the two is independent or dependent.  </li>
+<li> $Explanatory:$ An explanatory variable is one that explains changes in that response variable. So the region and the feeling about the country’s direction.  </li>
+</ul>
+
+#### <span style="color:magenta"> (ii) Hypotheses for evaluating this relationship </span>
+<ul> 
+<li> <span style="color:orange">$Ho$</span>: Region and feeling about the country’s direction are *independent* meaning that feeling about the country’s direction *does not* vary by region. </li>
+<li> <span style="color:orange">$HA$</span>: Region and feeling about the country’s direction are *dependent* meaning that feeling about the country’s direction *do* vary by region.  </li>
+</ul>
+
+#### <span style="color:magenta"> (iii) Hypothesis test and interpreting results in context of the data and the research question </span>
+<ul> 
+<li> 
+
+Recreating the table given:
+
+```{r}
+ regionWithFeelings <- matrix(c(44,29,62,36,77,54,131,67),ncol=4,byrow=TRUE)
+ colnames(regionWithFeelings) <- c("north_central","northeast","south", "west")
+ rownames(regionWithFeelings) <- c("right_direction","wrong_track")
+ regionWithFeelingsTable <- as.table(regionWithFeelings)
+ addmargins(regionWithFeelingsTable)
+``` 
+</li>
+<li> 
+
+Running chisq test:
+
+```{r}
+chisq.test(regionWithFeelingsTable) # or summary(regionWithFeelingsTable) 
+```
+
+</li>
+
+<li> Interpreting results in context of the data and the research question:
+
+   We calculated a p-value of 0.8809 (which is greater than the standard significance level of 0.05), so the conclusion of the hypothesis test is to *not reject* the $Ho$ which means that the data provides convincing evidence that the region and feeling about the country’s direction are independent.
+  
+
+</li>
+</ul>
+
+
+
+# <span style="color:blue"> *Exercise 9.2* </span>
+
+#### <span style="color:green"> Testing the hypothesis: </span>
+
+## <span style="color:orange"> _part a)_ </span> 
+
+</br>
+
+
+#### <span style="color:magenta"> (1)  State the hypotheses  </span>
+
+<ul> 
+
+<li> <span style="color:orange">$Ho$ </span>: $\mu_{diff} = 0$ : Police officers *do not* appear to have been exposed to a different concentration of lead.  </li>
+<li> <span style="color:orange">$HA$ </span>:$\mu_{diff} \neq 0$ : Police officers *do* appear to have been exposed to a different concentration of lead.</li>
+</ul>
+
+## <span style="color:orange"> _part b)_ </span> 
+
+</br>
+
+
+#### <span style="color:magenta"> (2)  Explicitly state and check all conditions necessary for inference on these data  </span>
+
+<ul> 
+
+<li> <span style="color:orange">$Independence:$</span> The samples are from two different studies, the more recent one was conducted on police officers with history of exposure to lead in an urban environment while the previous study was conducted on individuals from a nearby suburb, with no history of exposure. The most common way to satisfy this condition is when the samples are a simple random sample from the population. There was no mention of a random sample in either study, therefore within samples we are not sure how exactly they were sampled which could lead to dependence which doesn't allow us to mark this condition as satisfied. </li> 
+
+</br>
+
+<li> <span style="color:orange">$Normality:$</span> Size is a little vague but because of the rule of thumb, the more recent study has 52 observations, meeting the n > 30 requirement, so we can assume that the sampling distribution is nearly normal, even if the underlying distribution of individual observations is not. With the previous study, there is no size given, therefore its even more vague, but if it was more than 30, then the same assumptions would've been made. If they were less than 30 then we would have to assume that the data came from a nearly normal distribution. Since not everything is clear since not all the sizes have been given, it doesn't allow us to mark this condition as satisfied.  </li>
+</ul>
+
+## <span style="color:orange"> _part c)_ </span> 
+
+</br>
+
+#### <span style="color:magenta"> (3)  Testing the hypothesis that the downtown police officers have a higher lead exposure than the group in the previous study and interpreting results in context of data  </span>
+
+
+<ul> 
+<li> Point estimate: difference of the two means </li>
+<li> <span style="color:orange">$T statistic$ </span>: $T_{df} =   \frac{PointEstimate}{ \frac{sd}{ \sqrt{n} } }$ </li>
+<li> <span style="color:orange">$T statistic$ </span>: $T_{df} =   \frac{124.32 - 35}{ \frac{37.74}{ \sqrt{52} } } = 17.06665818$   </li>
+<li> <span style="color:orange">$df$ </span>: Degree of Freedom = $n -1 = 52 -1 = 51$ </li>
+
+</br>
+
+<li>
+
+```{r}
+2 * pt((124.32-35)/(37.74/sqrt(52)), df = 51, lower.tail = FALSE) # p-value calculation
+```
+
+
+</li>
+
+</ul>
+
+#### <span style="color:magenta"> (4)  Conclusion </span>
+
+<ul> 
+<li> A p-value of 9.913949e-23 is obviously very small (definitely smaller than the standard significance level of 0.05 or even 0.01), so the conclusion of the hypothesis test is to *reject* the $Ho$ which means that the data provides convincing evidence that the police officers *do* appear to have been exposed to a different concentration of lead. </li>
+</ul>
+
+</br>
+</br>
